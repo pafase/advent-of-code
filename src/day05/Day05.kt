@@ -30,16 +30,37 @@ fun main() {
         }
     }
 
+    fun moveSameTime(quantity: Int, from: ArrayDeque<String>, to: ArrayDeque<String>) {
+        for (i in (quantity - 1) downTo 0) {
+            from.removeAt(i).let { to.addFirst(it) }
+        }
+    }
+
+    fun getMoveNumbers(move: String): List<String> {
+        return move.filter { !it.isLetter() }
+            .split("\\s".toRegex())
+            .filter { it.isNotBlank() }
+    }
+
     fun executeAllMoves(input: List<String>, stacks: MutableList<ArrayDeque<String>>) {
         val moves = input.filter { it.startsWith("move") }
         moves.forEach { move ->
-            val moveParts = move.filter { !it.isLetter() }
-                .split("\\s".toRegex())
-                .filter { it.isNotBlank() }
+            val moveParts = getMoveNumbers(move)
             val quantity = moveParts[0].toInt()
             val from = stacks[moveParts[1].toInt() - 1]
             val to = stacks[moveParts[2].toInt() - 1]
             move(quantity, from, to)
+        }
+    }
+
+    fun executeAllMovesSameTime(input: List<String>, stacks: MutableList<ArrayDeque<String>>) {
+        val moves = input.filter { it.startsWith("move") }
+        moves.forEach { move ->
+            val moveParts = getMoveNumbers(move)
+            val quantity = moveParts[0].toInt()
+            val from = stacks[moveParts[1].toInt() - 1]
+            val to = stacks[moveParts[2].toInt() - 1]
+            moveSameTime(quantity, from, to)
         }
     }
 
@@ -61,8 +82,12 @@ fun main() {
         return topCrates(stacks)
     }
 
-    fun part2(input: List<String>): Int {
-        return 0;
+    fun part2(input: List<String>): String {
+        val numberOfStacks = getNumberOfStacks(input)
+        val stacks = MutableList<ArrayDeque<String>>(numberOfStacks) { ArrayDeque() }
+        populateStacks(input, stacks)
+        executeAllMovesSameTime(input, stacks)
+        return topCrates(stacks)
     }
 
     val input = readInput("input", "src/day05")
